@@ -34,7 +34,7 @@ const router = new express.Router()
  *                  "customerId": "string",                 
  *                	"amount": number,
  *                  "amountInLetters":"string",
- *                  "date": "date"
+ *                  "date": "date",
  *                 	"branch": "string",
  *                	"receivedBy": "string",
  *                	"paymentType": "string",
