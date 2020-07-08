@@ -158,50 +158,6 @@ router.get('/',auth, checkSchema(validations.list), schemaErrorHandler(), contro
 //#endregion
 router.get('/:id',auth, checkSchema(validations.get), schemaErrorHandler(),controllerAdapter(receiptControllerInstance, 'get'))
 
-//#region [swagger: /customers/{id} - GET]
-/**
- * @swagger
- * /receipts/{id}:
- *   get:
- *     tags:
- *       - receipt
- *     summary: Find receipts by customerId
- *     description: Returns the customer`s receipt
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: authorization
- *         description: Bearer Authentication Token (It will be written as "Bearer + space + idToken" )
- *         in: header
- *         type: string
- *         required: true
- *       - id: id
- *         in: path
- *         description: Enter valid ID to retrieve the customer`s receipts
- *         name: id
- *         type: string
- *         format: hexadecimel
- *         required: true
- *         
- *     responses:
- *       200:
- *         description: Succesfull response
- *       401:
- *         description: Unauthorized Error
- *         schema: 
- *           type: string
- *           example: "Authentication failed! Try again."         
- *       404:
- *         description: The customer has no receipt
- *         
- *       400:
- *         description: Bad Request
- *         
- */
-//#endregion
-router.get('/:id',auth, checkSchema(validations.get), schemaErrorHandler(),controllerAdapter(receiptControllerInstance, 'getByCustomerID'))
-
-
 //#region [swagger: /receipts/{id} - PATCH]
 /**
  * @swagger

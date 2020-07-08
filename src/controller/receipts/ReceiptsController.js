@@ -72,17 +72,6 @@ class ReceiptsController {
       : new responses.NotFoundResponse('Receipt not exist!');
   }
 
-  async getByCustomerID({ params }) {
-    debug('ReceiptsController - get:', JSON.stringify(params));
-
-    const _id = params.id;
-    const receipts = await Receipt.find({customerId: _id});
-
-    return receipt
-      ? new responses.OkResponse(receipts)
-      : new responses.NotFoundResponse('Customer has no receipts!');
-  }
-
   async update(req, res){
     const {params, body} = req
     debug("ReceiptsController - update:", JSON.stringify({ params, body }));
