@@ -48,7 +48,7 @@ class ReceiptsController {
     
     await receipt.save()
 
-    return new responses.CreatedResponse(receipt._id);
+    return new responses.CreatedResponse(receipt);
   }
 
   async list({ query }) {
