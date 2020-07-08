@@ -98,6 +98,10 @@ router.post("/", auth, checkSchema(validations.create), schemaErrorHandler(), co
  *         name: limit
  *         type: integer
  *         description: The numbers of receipts to return.
+ *       - in: query
+ *         name: customerId
+ *         type: string
+ *         description: Only returns receipts with customerId that comes with query.
  *     responses:
  *       200:
  *         description: An array of receipts and number of all receipts in the database

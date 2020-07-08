@@ -16,7 +16,7 @@ const auth = async (req, res, next) => {
     try {
       if (!req.headers.authorization){
         const response = new responses.UnauthorizedResponse({},'Authentication failed! Try again.');
-        return res.status(response.metadata.code).json(response);
+        return res.status(response.code).json(response);
       }
       const accessToken = req.headers.authorization.trim().split(' ')[1];  
       const ret = await verifier.verifyAccessToken(accessToken, oktaClientId);

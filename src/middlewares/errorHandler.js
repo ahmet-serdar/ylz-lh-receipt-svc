@@ -44,7 +44,7 @@ function errorHandler(nodeEnv) {
         break;
     }
 
-    res.status(response.metadata.code).json(response);
+    res.status(response.code).json(response);
   };
 }
 

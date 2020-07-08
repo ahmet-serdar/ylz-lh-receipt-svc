@@ -54,8 +54,8 @@ class ReceiptsController {
   async list({ query }) {
     debug('ReceiptsController - list:', JSON.stringify(query, null, 2));
 
-    const { limit, skip } = query;
-    const data = await Receipt.find({}, null, { limit, skip });
+    const { limit, skip, customerId } = query;
+    const data = await Receipt.find({ customerId }, null, { limit, skip });
 
     return new responses.OkResponse(data);
   }
