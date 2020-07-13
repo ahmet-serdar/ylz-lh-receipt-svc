@@ -57,8 +57,8 @@ const router = new express.Router()
  *         schema: 
  *           type: string
  *           example: "Authentication failed! Try again." 
- *       422: 
- *          description: Unprocessable Entity
+ *       400: 
+ *          description: BAD_REQUEST
  *          schema:
  *            type: string
  *            example: "Something went wrong! Check required inputs!"
