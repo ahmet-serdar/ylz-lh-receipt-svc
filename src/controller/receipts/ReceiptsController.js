@@ -13,46 +13,49 @@ class ReceiptsController {
     return ReceiptsController.instance;
   }
 
-  async create({ body }){
+  async create({ body, headers, locals }){
     debug('ReceiptsController - create:', JSON.stringify(body));
-  //   const bodyKeys = Object.keys(body);
-  //   const allowedKeys = ["firstName", "lastName", "isIndividual", "address", "phones", "email", "createdBy"];
-  //   const isValidOperation = bodyKeys.every(key =>
-  //   allowedKeys.includes(key)
-  //   );
 
-  // if (!isValidOperation) {
-  //   return new responses.BadRequestResponse(undefined,'Invalid keys!.');
-  // }
-    if(!body.customerId){
-      return new responses.BadRequestResponse(undefined, "CustomerId is required")
+    const token = headers.authorization
+    const managerID = locals.managerID
+
+    const bodyKeys = Object.keys(body);
+    const allowedKeys = ["customerId", "amount", "amountInLetters", "date", "branch", "receivedBy", "paymentType", "paymentReason"];
+    const isValidOperation = bodyKeys.every(key =>
+    allowedKeys.includes(key)
+    );
+
+    if (!isValidOperation) {
+      return new responses.BadRequestResponse(undefined,'Invalid keys!.');
     }
 
     const url = process.env.CUSTOMER_SVC_URL
 
-    try{
+      const customer = await axios.get(url + "/" + body.customerId, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: token
+        }
+      })
 
-      await axios.get(`${url}/api/customers/${body.customerId}`)
-
-    } catch (err) {
-
-      return new responses.NotFoundResponse("Cusomer cannot found!")
-
+    if(!customer) {
+      return new responses.NotFoundResponse("Customer could not found!")
     }
     
     const receipt = new Receipt(body)
-
+    receipt.createdBy = managerID
     
     await receipt.save()
 
-    return new responses.CreatedResponse(receipt._id);
+    return new responses.CreatedResponse(receipt);
   }
 
   async list({ query }) {
     debug('ReceiptsController - list:', JSON.stringify(query, null, 2));
 
-    const { limit, skip } = query;
-    const data = await Receipt.find({ limit, skip });
+    const { limit, skip, customerId } = query;
+    const data = await Receipt.find({ customerId }, null, { limit, skip });
 
     return new responses.OkResponse(data);
   }
@@ -64,61 +67,32 @@ class ReceiptsController {
     const _id = params.id;
     const receipt = await Receipt.findById(_id);
 
-    if(!receipt) {
-      return new responses.NotFoundResponse(undefined, 'Receipt not exist!')
-    }
-
     return receipt
       ? new responses.OkResponse(receipt)
-      : new responses.BadRequestResponse(undefined, 'Could not find the receipt.');
+      : new responses.NotFoundResponse('Receipt not exist!');
   }
 
   async update(req, res){
     const {params, body} = req
     debug("ReceiptsController - update:", JSON.stringify({ params, body }));
 
-  //   const _id = params.id
-  //   const updates = Object.keys(body);
-  //   const allowedUpdates = ["firstName", "lastName", "isIndividual", "address", "phones", "email"];
-  //   const isValidOperation = updates.every(update =>
-  //   allowedUpdates.includes(update)
-  // );
+    const _id = params.id
+    const updates = Object.keys(body);
+    const allowedUpdates = ["amount", "amountInLetters", "branch", "receivedBy", "paymentType", "paymentReason"];
+    const isValidOperation = updates.every(update =>
+    allowedUpdates.includes(update)
+  );
 
-  // if (!isValidOperation) {
-  //   const notAllowedUpdates = updates.filter(update => !allowedUpdates.includes(update))
-  //   return new responses.BadRequestResponse(undefined, notAllowedUpdates);
-  // }
+  if (!isValidOperation) {
+    const notAllowedUpdates = updates.filter(update => !allowedUpdates.includes(update))
+    return new responses.BadRequestResponse(undefined,  `${notAllowedUpdates} is/are not allowed to update!`);
+  }
   
     const receipt = await Receipt.findByIdAndUpdate(_id, body, {new: true, runValidators: true})
 
-
-    if(!receipt) {
-      return new responses.NotFoundResponse(undefined, 'Receipt not exist!')
-    }
-
     return receipt
       ? new responses.OkResponse(receipt)
-      : new responses.BadRequestResponse(undefined, 'Could not find the receipt.');
-  }
-
-  async delete({ params }) {
-    debug("ReceiptsController - delete:", JSON.stringify(params));
-
-    const _id = params.id;
-
-    let receipt = await Receipt.findById(_id)
-
-
-    if(!receipt || receipt.isDeleted === true) {
-      return new responses.NotFoundResponse('Receipt was deleted or not exist!')
-    }
-    
-    receipt = await Receipt.findByIdAndUpdate(_id, {isDeleted: true, deletedAt: new Date()}, {new: true, runValidators: true})
-
-    
-     return receipt
-      ? new responses.OkResponse(receipt)
-      : new responses.BadRequestResponse(undefined, 'Could not find the receipt.');    
+      : new responses.BadRequestResponse(undefined, 'Receipt not exist!');
   }
 }
 

@@ -1,6 +1,6 @@
 const express = require('express')
 const { checkSchema } = require("express-validator")
-const { schemaErrorHandler, controllerAdapter } = require('../../middlewares')
+const { schemaErrorHandler, controllerAdapter, auth } = require('../../middlewares')
 const validations = require("./validations")
 const receiptControllerInstance = require('./ReceiptsController')
 
@@ -15,27 +15,32 @@ const router = new express.Router()
  *  /receipts:
  *    post:
  *     tags:
- *       - Receipt
- *     description: Creates a new Receipt
+ *       - receipt
+ *     summary: "Add a new receipt to store"
+ *     description: 
  *     produces:
  *       - application/json
  *     parameters:
+ *       - name: authorization
+ *         description: Bearer Authentication Token (It will be written as "Bearer + space + idToken" )
+ *         in: header
+ *         type: string
+ *         required: true
  *       - name: receipt 
  *         in: body
- *         description: Receipt object
+ *         description: Create a new receipt
  *         required: true
- *         example: {
- *                    "customerId": string,
- *                   	"amount": number,
- *                  	"amountInLetters": string,
- *                  	"branch": string,
- *                  	"receivedBy": string,
- *                  	"paymentType": string,
- *                    "paymentReason": string,
- *                  	"createdBy": string
-}
- *       - schema:
- *           $ref: '#/repositories/receipt'
+ *         example: {   
+ *                  "customerId": "string",                 
+ *                	"amount": number,
+ *                  "amountInLetters":"string",
+ *                  "date": "date",
+ *                 	"branch": "string",
+ *                	"receivedBy": "string",
+ *                	"paymentType": "string",
+ *                 	"paymentReason": "string"
+ *                  }
+ *         
  *     responses:
  *       201:
  *         description: Successfull response
@@ -47,142 +52,166 @@ const router = new express.Router()
  *                       "message": "Created",
  *                       "timestamp": date
  *                      }
+ *       401:
+ *         description: Unauthorized Error
+ *         schema: 
+ *           type: string
+ *           example: "Authentication failed! Try again." 
  *       422: 
  *          description: Unprocessable Entity
  *          schema:
- *            type: object
- *            example: {
- *                       "code": "422",
- *                       "message": "",
- *                       "timestamp": date
- *                      }
+ *            type: string
+ *            example: "Something went wrong! Check required inputs!"
  *       500:
  *         description: Error
  *         schema: 
  *           type: string
- *           example: "Could not add Receipt"            
+ *           example: "Could not add receipt"            
              
  */
 //#endregion
-router.post("/", checkSchema(validations.create), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'create'))
+router.post("/", auth, checkSchema(validations.create), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'create'))
+
 
 //#region [swagger: /receipts - GET]
 /**
  * @swagger
- * /receipts:
+ * /receipts?skip=0&limit=10:
  *   get:
  *     tags:
- *       - Receipts
+ *       - receipt
+ *     summary: Get all receipts
  *     description: Returns all receipts
  *     produces:
  *       - application/json
+ *     parameters:
+ *       - name: authorization
+ *         description: Bearer Authentication Token (It will be written as "Bearer + space + idToken" )
+ *         in: header
+ *         type: string
+ *         required: true
+ *       - in: query
+ *         name: skip
+ *         type: integer
+ *         description: The number of pages to skip before starting to collect the result set.
+ *       - in: query
+ *         name: limit
+ *         type: integer
+ *         description: The numbers of receipts to return.
+ *       - in: query
+ *         name: customerId
+ *         type: string
+ *         description: Only returns receipts with customerId that comes with query.
  *     responses:
  *       200:
- *         description: An array of receipts
- *        
+ *         description: An array of receipts and number of all receipts in the database
+ *       401:
+ *         description: Unauthorized Error
+ *         schema: 
+ *           type: string
+ *           example: "Authentication failed! Try again."    
  *            
  */
 //#endregion
-router.get('/', checkSchema(validations.list), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'list'))
+router.get('/',auth, checkSchema(validations.list), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'list'))
 
-
-//#region [swagger: /receipts/:id - GET]
+//#region [swagger: /receipts/{id} - GET]
 /**
  * @swagger
- * /receipts/:id:
+ * /receipts/{id}:
  *   get:
  *     tags:
- *       - Receipt
- *     description: Returns the receipt with id
+ *       - receipt
+ *     summary: Find receipt by ID
+ *     description: Returns a single receipt
  *     produces:
  *       - application/json
  *     parameters:
+ *       - name: authorization
+ *         description: Bearer Authentication Token (It will be written as "Bearer + space + idToken" )
+ *         in: header
+ *         type: string
+ *         required: true
  *       - id: id
- *         description: Receipt id
- *         in: query
+ *         in: path
+ *         description: Enter valid ID to retrieve receipt details
+ *         name: id
+ *         type: string
+ *         format: hexadecimel
  *         required: true
  *         
  *     responses:
  *       200:
  *         description: Succesfull response
- *         
+ *       401:
+ *         description: Unauthorized Error
+ *         schema: 
+ *           type: string
+ *           example: "Authentication failed! Try again."         
  *       404:
- *         description: Receipt Not Found
+ *         description: receipt Not Found
  *         
  *       400:
  *         description: Bad Request
  *         
  */
 //#endregion
-router.get('/:id', checkSchema(validations.get), schemaErrorHandler(),controllerAdapter(receiptControllerInstance, 'get'))
+router.get('/:id',auth, checkSchema(validations.get), schemaErrorHandler(),controllerAdapter(receiptControllerInstance, 'get'))
 
-
-//#region [swagger: /receipts/:id - PATCH]
+//#region [swagger: /receipts/{id} - PATCH]
 /**
  * @swagger
- * /receipts/:id:
+ * /receipts/{id}:
  *   patch:
  *     tags:
- *       - Receipt
- *     description: Update the receipt
+ *       - receipt
+ *     summary: Update a receipt
  *     produces:
  *       - application/json
  *     parameters:
+ *       - name: authorization
+ *         description: Bearer Authentication Token (It will be written as "Bearer + space + idToken" )
+ *         in: header
+ *         type: string
+ *         required: true
  *       - id: id
- *         description: Receipt id
- *         in: query
+ *         description: Enter valid ID
+ *         name: id
+ *         type: string
+ *         format: hexadecimal
+ *         in: path
  *         required: true
  *      
- *       - name: updates
- *         description: Updates
+ *       - name: update body
+ *         description: Valid updates are  "amount", "amountInLetters", "branch", "receivedBy", "paymentType", "paymentReason"
  *         in: body
+ *         type: object
  *         required: true
- *         schema:
- *           $ref: '#/repositories/Receipts'
+ *         example: {                    
+ *                	"amount": number,
+ *                  "amountInLetters":"string",
+ *                 	"branch": "string",
+ *                	"receivedBy": "string",
+ *                	"paymentType": "string",
+ *                 	"paymentReason": "string"
+ *                  }
  *     responses:
  *       200:
  *         description: Succesfull response
+ *       401:
+ *         description: Unauthorized Error
+ *         schema: 
+ *           type: string
+ *           example: "Authentication failed! Try again." 
  *         
  *       404:
- *         description: Receipt Not Found
+ *         description: receipt Not Found
  *         
  *       400:
  *         description: Bad Request
  *         
  */
 //#endregion
-router.patch('/:id', checkSchema(validations.update), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'update'))
-
-
-//#region [swagger: /receipts/:id - DELETE]
-/**
- * @swagger
- * /receipts/:id:
- *   delete:
- *     tags:
- *       - Receipt
- *     description: Delete the receipt
- *     produces:
- *       - application/json
- *     parameters:
- *       - id: id
- *         description: Receipt id
- *         in: query
- *         required: true
- *     responses:
- *       200:
- *         description: Succesfull response
- *         
- *       404:
- *         description: Receipt Not Found
- *         
- *       400:
- *         description: Bad Request
- *         
- *
- */
-//#endregion
-router.delete('/:id', checkSchema(validations.delete), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'delete'))
-
+router.patch('/:id',auth, checkSchema(validations.update), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'update'))
 
 module.exports = router;

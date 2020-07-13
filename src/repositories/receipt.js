@@ -38,10 +38,6 @@ const receiptSchema = new mongoose.Schema ({
   details: {
     type: String
   },
-  isDeleted: {
-    type: Boolean,
-    default: false
-  },
   createdBy: {
     type: String,
     required: true
@@ -55,16 +51,13 @@ const receiptSchema = new mongoose.Schema ({
   timestamps: true
 })
 
-receiptSchema.methods.toJSON = function () {
-  const receipt = this
-  const receiptObject = receipt.toObject()
-
-  if(receiptObject.deletedAt === null) {
-    delete receiptObject.deletedAt
+receiptSchema.set('toJSON', {
+  transform: function (doc, ret, options) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
   }
-
-  return receiptObject
-}
+});
 const Receipt = mongoose.model('Receipt', receiptSchema)
 
 module.exports = Receipt 
