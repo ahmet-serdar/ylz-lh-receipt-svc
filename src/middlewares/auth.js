@@ -21,6 +21,7 @@ const auth = async (req, res, next) => {
       const accessToken = req.headers.authorization.trim().split(' ')[1];  
       const ret = await verifier.verifyAccessToken(accessToken, oktaClientId);
       res.locals.managerID = ret.claims.sub
+      res.locals.managerName = ret.claims.name
 
       next();
     } catch (error) {

@@ -113,7 +113,8 @@ router.post("/", auth, checkSchema(validations.create), schemaErrorHandler(), co
  *            
  */
 //#endregion
-router.get('/',auth, checkSchema(validations.list), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'list'))
+router.get('/', auth, checkSchema(validations.list), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'list'))
+router.get('/search', auth, checkSchema(validations.list), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'search'))
 
 //#region [swagger: /receipts/{id} - GET]
 /**
@@ -156,7 +157,7 @@ router.get('/',auth, checkSchema(validations.list), schemaErrorHandler(), contro
  *         
  */
 //#endregion
-router.get('/:id',auth, checkSchema(validations.get), schemaErrorHandler(),controllerAdapter(receiptControllerInstance, 'get'))
+router.get('/:id', auth, checkSchema(validations.get), schemaErrorHandler(),controllerAdapter(receiptControllerInstance, 'get'))
 
 //#region [swagger: /receipts/{id} - PATCH]
 /**
@@ -212,6 +213,6 @@ router.get('/:id',auth, checkSchema(validations.get), schemaErrorHandler(),contr
  *         
  */
 //#endregion
-router.patch('/:id',auth, checkSchema(validations.update), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'update'))
+router.patch('/:id', auth, checkSchema(validations.update), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'update'))
 
 module.exports = router;

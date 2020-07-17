@@ -26,7 +26,6 @@
     "express-validator": "^6.4.1",
     "helmet": "^3.22.0",
     "mongoose": "^5.9.10",
-    "mongoose-delete": "^0.5.2",
     "morgan-body": "^2.4.8",
     "pjson": "^1.0.9",
     "regenerator-runtime": "^0.13.5",

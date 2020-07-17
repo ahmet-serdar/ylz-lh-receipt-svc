@@ -18,6 +18,7 @@ class ReceiptsController {
 
     const token = headers.authorization
     const managerID = locals.managerID
+    const managerName = locals.managerName
 
     const bodyKeys = Object.keys(body);
     const allowedKeys = ["customerId", "amount", "amountInLetters", "date", "branch", "receivedBy", "paymentType", "paymentReason"];
@@ -39,12 +40,16 @@ class ReceiptsController {
         }
       })
 
-    if(!customer) {
-      return new responses.NotFoundResponse("Customer could not found!")
+      if(!customer) {
+
+      return new responses.NotFoundResponse(undefined, "Customer could not found!")
     }
     
     const receipt = new Receipt(body)
-    receipt.createdBy = managerID
+    receipt.createdBy.id = managerID
+    receipt.createdBy.name = managerName
+    receipt.customer.customerId = body.customerId
+    receipt.customer.customerName = customer.data.data.firstName + ' ' + customer.data.data.lastName
     
     await receipt.save()
 
@@ -55,14 +60,40 @@ class ReceiptsController {
     debug('ReceiptsController - list:', JSON.stringify(query, null, 2));
 
     const { limit, skip, customerId } = query;
-    let data
+    let data, count
+
     if(customerId) {
       data = await Receipt.find({ customerId }, null, { limit, skip })
+      count = await Receipt.find({ customerId }, null, {})
     } else {
       data = await Receipt.find({}, null, { limit, skip })
+      count = await Receipt.find({}, null, {})
     }
 
-    return new responses.OkResponse(data);
+    return new responses.OkResponse({data, count:count.length});
+  }
+
+  async search({ body, headers }) {
+    debug('ReceiptsController - get:', JSON.stringify(body));
+    const name = body.name
+    console.log(name, 'name')
+    const token = headers.authorization
+    const url = process.env.CUSTOMER_SVC_URL;
+    const customers = await axios.get(url + `/search?name=${name}` , {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: token
+      }
+    })
+
+    console.log(customers.data.data, 'customer')
+
+   const data = await Receipt.find().where('customer.customerId').in(customers.data.data); 
+    
+    return data
+      ? new responses.OkResponse(data)
+      : new responses.NotFoundResponse(undefined, 'Customer not exist!');
   }
 
 
@@ -83,14 +114,14 @@ class ReceiptsController {
 
     const _id = params.id
     const updates = Object.keys(body);
-    const allowedUpdates = ["amount", "amountInLetters", "branch", "receivedBy", "paymentType", "paymentReason"];
+    const allowedUpdates = ["customerId","amount", "amountInLetters", "date", "branch", "receivedBy", "paymentType", "paymentReason"];
     const isValidOperation = updates.every(update =>
     allowedUpdates.includes(update)
   );
 
   if (!isValidOperation) {
     const notAllowedUpdates = updates.filter(update => !allowedUpdates.includes(update))
-    return new responses.BadRequestResponse(undefined,  `${notAllowedUpdates} is/are not allowed to update!`);
+    return new responses.BadRequestResponse(undefined, notAllowedUpdates, `Not allowed updates!`);
   }
   
     const receipt = await Receipt.findByIdAndUpdate(_id, body, {new: true, runValidators: true})
