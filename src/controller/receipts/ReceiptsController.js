@@ -120,7 +120,7 @@ class ReceiptsController {
     
     return data
       ? new responses.OkResponse(data)
-      : new responses.NotFoundResponse(undefined, 'Customer not exist!');
+      : new responses.NotFoundResponse(undefined, 'Receipt not exist!');
   }
 
 
