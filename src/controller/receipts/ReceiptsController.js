@@ -98,19 +98,25 @@ class ReceiptsController {
   async search({ body, headers }) {
     debug('ReceiptsController - get:', JSON.stringify(body));
 
-    const name = body.name    
+    const name = body.name   
+    const receiptId = body.id 
     const token = headers.authorization
     const url = process.env.CUSTOMER_SVC_URL;
 
-    const customers = await axios.get(url + `/search?name=${name}` , {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: token
-      }
-    })
+    let data
 
-   const data = await Receipt.find().where('customer.customerId').in(customers.data.data); 
+    if(name) {
+      const customers = await axios.get(url + `/search?name=${name}` , {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: token
+        }
+      })
+      data = await Receipt.find().where('customer.customerId').in(customers.data.data); 
+    }else if(receiptId) {
+      data = await Receipt.findById(receiptId)
+    }
     
     return data
       ? new responses.OkResponse(data)
@@ -133,7 +139,7 @@ class ReceiptsController {
     debug("ReceiptsController - update:", JSON.stringify({ params, body }));
     
     const {params, body} = req
-    
+
     const _id = params.id
     const updates = Object.keys(body);
     const allowedUpdates = ["customerId","amount", "amountInLetters", "date", "branch", "receivedBy", "paymentType", "paymentReason"];
