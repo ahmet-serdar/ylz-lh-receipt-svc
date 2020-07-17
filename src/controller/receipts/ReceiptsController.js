@@ -103,7 +103,7 @@ class ReceiptsController {
     const token = headers.authorization
     const url = process.env.CUSTOMER_SVC_URL;
 
-    let data
+    let data = []
 
     if(name) {
       const customers = await axios.get(url + `/search?name=${name}` , {
@@ -115,13 +115,12 @@ class ReceiptsController {
       })
       data = await Receipt.find().where('customer.customerId').in(customers.data.data); 
     }else if(receiptId) {
-      data = await Receipt.findById(receiptId)
+      const receipt = await Receipt.findById(receiptId)
+      receipt ? data = receipt : []
     }
     
-    return data
-      ? new responses.OkResponse(data)
-      : new responses.NotFoundResponse(undefined, 'Receipt not exist!');
-  }
+    return new responses.OkResponse(data)
+   }
 
 
   async get({ params }) {
