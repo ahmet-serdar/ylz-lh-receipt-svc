@@ -39,17 +39,39 @@ class ReceiptsController {
           Authorization: token
         }
       })
-
-      if(!customer) {
-
-      return new responses.NotFoundResponse(undefined, "Customer could not found!")
+    
+    const receiptBody = {
+      customer: {
+        id: body.customerId,
+        name: customer.data.data.firstName + ' ' + customer.data.data.lastName
+      },
+      amount: body.amount,
+      amountInLetters: body.amountInLetters,
+      date: body.date,
+      branch: {
+        id: body.branch,
+        name: body.branch
+      },
+      receivedBy: {
+        id: body.receivedBy,
+        name: body.receivedBy,
+      },
+      paymentType: {
+        id: body.paymentType,
+        name: body.paymentType,
+      },
+      paymentReason: {
+        id: body.paymentReason,
+        name: body.paymentReason,
+      },
+      details: body.details,
+      createdBy: {
+        id: managerID,
+        name: managerName,
+      }
     }
     
-    const receipt = new Receipt(body)
-    receipt.createdBy.id = managerID
-    receipt.createdBy.name = managerName
-    receipt.customer.customerId = body.customerId
-    receipt.customer.customerName = customer.data.data.firstName + ' ' + customer.data.data.lastName
+    const receipt = new Receipt(receiptBody)
     
     await receipt.save()
 
@@ -75,10 +97,11 @@ class ReceiptsController {
 
   async search({ body, headers }) {
     debug('ReceiptsController - get:', JSON.stringify(body));
-    const name = body.name
-    console.log(name, 'name')
+
+    const name = body.name    
     const token = headers.authorization
     const url = process.env.CUSTOMER_SVC_URL;
+
     const customers = await axios.get(url + `/search?name=${name}` , {
       headers: {
         Accept: 'application/json',
@@ -86,8 +109,6 @@ class ReceiptsController {
         Authorization: token
       }
     })
-
-    console.log(customers.data.data, 'customer')
 
    const data = await Receipt.find().where('customer.customerId').in(customers.data.data); 
     
@@ -109,9 +130,10 @@ class ReceiptsController {
   }
 
   async update(req, res){
-    const {params, body} = req
     debug("ReceiptsController - update:", JSON.stringify({ params, body }));
-
+    
+    const {params, body} = req
+    
     const _id = params.id
     const updates = Object.keys(body);
     const allowedUpdates = ["customerId","amount", "amountInLetters", "date", "branch", "receivedBy", "paymentType", "paymentReason"];

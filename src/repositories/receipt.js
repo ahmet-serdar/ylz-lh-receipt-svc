@@ -3,17 +3,18 @@ const { autoIncrementModelID } = require('../middlewares');
 
 const receiptSchema = new mongoose.Schema(
   {
-    id: { 
+    _id: { 
       type: Number, 
       unique: true
     },
     customer: {
-      customerId: {
+      _id: false,
+      id: {
         type: String,
         required: true,
         trim: true,
       },
-      customerName: {
+      name: {
         type: String,
         required: true,
         trim: true,
@@ -33,25 +34,55 @@ const receiptSchema = new mongoose.Schema(
       default: Date.now,
     },
     branch: {
-      type: String,
-      trim: true,
+      _id: false,
+      id: {
+        type: String,
+        required: true
+      },
+      name:  {
+        type: String,
+        trim: true,
+        required: true
+      }
     },
     receivedBy: {
-      type: String,
-      required: true,
+      _id: false,
+      id: {
+        type: String,
+        required: true,
+      },
+      name: {
+        type: String,
+        required: true,
+      }
     },
     paymentType: {
-      type: String,
-      required: true,
+      _id: false,
+      id: {
+        type: String,
+        required: true,
+      },
+      name: {
+        type: String,
+        required: true,
+      }
     },
     paymentReason: {
-      type: String,
-      required: true,
+      _id: false,
+      id: {
+        type: String,
+        required: true,
+      },
+      name: {
+        type: String,
+        required: true,
+      }
     },
     details: {
       type: String,
     },
     createdBy: {
+      _id: false,
       id: {
       type: String,
       required: true,

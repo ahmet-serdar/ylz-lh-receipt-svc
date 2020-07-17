@@ -21,7 +21,7 @@ function controllerAdapter(controller = null, functionName = "") {
 
       res.status(response.code).json(response);
     } catch (err) {
-      error(err, 'error');
+      error(err);
       next(err);
     }
   };

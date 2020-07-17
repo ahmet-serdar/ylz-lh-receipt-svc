@@ -1,8 +1,5 @@
-/** @format */
-
 const { constants } = require('@ylz/common')
 const { utilities } = require('@ylz/data-access')
-const { isBoolean } = require('@ylz/common/dist/src/libs/validations')
 
 const validations = Object.freeze({
   id: {
@@ -65,21 +62,38 @@ const validations = Object.freeze({
     return {
       in: [locationType],
       optional: !isRequired,
-        errorMessage: `Received by is required!`
+      custom: {
+        options: (value) => {
+          if(value) {
+            return value.length >= 1}
+        },
+        errorMessage: `Received by  is required!`
+      }   
       
   }},
   paymentType(locationType = constants.HttpRequestLocation.query, isRequired = true) {
     return {
       in: [locationType],
       optional: !isRequired,
-        errorMessage: `Payment type by is required!`
-      
+      custom: {
+        options: (value) => {
+          if(value) {
+            return value.length >= 1}
+        },
+        errorMessage: `Payment type  is required!`
+      }      
   }},
   paymentReason(locationType = constants.HttpRequestLocation.query, isRequired = true) {
     return {
       in: [locationType],
       optional: !isRequired,
-        errorMessage: `Payment reason by is required!`
+      custom: {
+        options: (value) => {
+          if(value) {
+            return value.length >= 1}
+        },
+        errorMessage: `Payment reason is required!`
+      }
       
   }},
   // amountInLetters(locationType = constants.HttpRequestLocation.query, isRequired = true) {
