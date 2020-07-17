@@ -85,25 +85,27 @@ class ReceiptsController {
     let data, count
 
     if(customerId) {
-      data = await Receipt.find({ customerId }, null, { limit, skip })
-      count = await Receipt.find({ customerId }, null, {})
+      data = await Receipt.find({}, null, { limit, skip, sort: {createdAt: -1}}).where('customer.id').in(customerId);
+      count =  await Receipt.find().where('customer.id').in(customerId);
     } else {
-      data = await Receipt.find({}, null, { limit, skip })
+      data = await Receipt.find({}, null, { limit, skip, sort: {createdAt: -1}})
       count = await Receipt.find({}, null, {})
     }
 
     return new responses.OkResponse({data, count:count.length});
   }
 
-  async search({ body, headers }) {
+  async search({ body, headers, query }) {
     debug('ReceiptsController - get:', JSON.stringify(body));
 
+    const {limit, skip} = query
     const name = body.name   
     const receiptId = body.id 
     const token = headers.authorization
     const url = process.env.CUSTOMER_SVC_URL;
 
     let data = []
+    let count
 
     if(name) {
       const customers = await axios.get(url + `/search?name=${name}` , {
@@ -113,13 +115,17 @@ class ReceiptsController {
           Authorization: token
         }
       })
-      data = await Receipt.find().where('customer.customerId').in(customers.data.data); 
+      
+      data = await Receipt.find({}, null, { limit, skip, sort: {createdAt: -1}}).where('customer.id').in(customers.data.data); 
+      const receipts = await Receipt.find().where('customer.id').in(customers.data.data); 
+      count = receipts.length
     }else if(receiptId) {
       const receipt = await Receipt.findById(receiptId)
       receipt ? data = receipt : []
+      count = receipt.length
     }
-    
-    return new responses.OkResponse(data)
+    console.log(count, 'counttt')
+    return new responses.OkResponse({data, count})
    }
 
 
