@@ -103,9 +103,7 @@ class ReceiptsController {
   async search({ body, headers, query }) {
     debug('ReceiptsController - get:', JSON.stringify(body));
 
-    const {limit, skip} = query
-    const name = body.name   
-    const receiptId = body.id 
+    const {limit, skip, name, id} = query
     const token = headers.authorization
     const url = process.env.CUSTOMER_SVC_URL;
 
@@ -129,8 +127,8 @@ class ReceiptsController {
     } catch (err) {
       return new responses.NotFoundResponse(null, err.response.data.errors)
     }
-    }else if(receiptId) {
-      const receipt = await Receipt.findById(receiptId)
+    }else if(id) {
+      const receipt = await Receipt.findById(id)
       receipt ? data = receipt : []
       count = receipt.length
     }
