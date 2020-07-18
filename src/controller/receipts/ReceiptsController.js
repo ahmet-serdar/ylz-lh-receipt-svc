@@ -29,11 +29,12 @@ class ReceiptsController {
     if (!isValidOperation) {
       return new responses.BadRequestResponse(undefined,'Invalid keys!.');
     }
+    let customer
 
     try{
       const url = process.env.CUSTOMER_SVC_URL
   
-        const customer = await axios.get(url + "/" + body.customerId, {
+        customer = await axios.get(url + "/" + body.customerId, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -120,9 +121,10 @@ class ReceiptsController {
           Authorization: token
         }
       })
+      const customerIDs = customers.data.data.map(customer => customer.id)
       
-      data = await Receipt.find({}, null, { limit, skip, sort: {createdAt: -1}}).where('customer.id').in(customers.data.data); 
-      const receipts = await Receipt.find().where('customer.id').in(customers.data.data); 
+      data = await Receipt.find({}, null, { limit, skip, sort: {createdAt: -1}}).where('customer.id').in(customerIDs); 
+      const receipts = await Receipt.find().where('customer.id').in(customerIDs); 
       count = receipts.length
     } catch (err) {
       return new responses.NotFoundResponse(null, err.response.data.errors)
