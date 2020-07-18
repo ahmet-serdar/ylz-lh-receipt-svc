@@ -30,15 +30,19 @@ class ReceiptsController {
       return new responses.BadRequestResponse(undefined,'Invalid keys!.');
     }
 
-    const url = process.env.CUSTOMER_SVC_URL
-
-      const customer = await axios.get(url + "/" + body.customerId, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: token
-        }
-      })
+    try{
+      const url = process.env.CUSTOMER_SVC_URL
+  
+        const customer = await axios.get(url + "/" + body.customerId, {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: token
+          }
+        })
+    } catch (err) {
+      return new responses.NotFoundResponse(null, err.response.data.errors)
+    }
     
     const receiptBody = {
       customer: {
@@ -108,6 +112,7 @@ class ReceiptsController {
     let count
 
     if(name) {
+      try{
       const customers = await axios.get(url + `/search?name=${name}` , {
         headers: {
           Accept: 'application/json',
@@ -119,12 +124,14 @@ class ReceiptsController {
       data = await Receipt.find({}, null, { limit, skip, sort: {createdAt: -1}}).where('customer.id').in(customers.data.data); 
       const receipts = await Receipt.find().where('customer.id').in(customers.data.data); 
       count = receipts.length
+    } catch (err) {
+      return new responses.NotFoundResponse(null, err.response.data.errors)
+    }
     }else if(receiptId) {
       const receipt = await Receipt.findById(receiptId)
       receipt ? data = receipt : []
       count = receipt.length
     }
-    console.log(count, 'counttt')
     return new responses.OkResponse({data, count})
    }
 

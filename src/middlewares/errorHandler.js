@@ -2,7 +2,6 @@ const { error } = require("@ylz/logger")
 const { constants, errors, responses } = require("@ylz/common")
 
 function errorHandler(nodeEnv) {
-
   return function errorHandler(err, req, res, next) {
     if (nodeEnv !== constants.EnvVar.TEST) {
       error(err);
@@ -10,21 +9,37 @@ function errorHandler(nodeEnv) {
 
     let response;
 
-    switch (err.response.status) {
-      case 404:
-        response = new responses.NotFoundResponse(null, err.response.data.errors);
+    switch (err.type) {
+      case errors.NotFoundError.name:
+        response = new responses.NotFoundResponse();
         break;
-      case 422:
-        response = new responses.UnprocessableResponse(null, err.response.data.errors );
+      case errors.DbValidationError.name:
+        response = new responses.UnprocessableResponse({
+          data: err.data.map((e) => ({
+            location: "",
+            param: e.path,
+            value: e.value,
+            msg: e.message
+          })),
+          message: err.message
+        });
         break;
-      case 400:
-        response = new responses.BadRequestResponse(null, err.response.data.errors);
+      case errors.DuplicateKeyError.name:
+        response = new responses.UnprocessableResponse({
+          message: err.message
+        });
         break;
+      case errors.BadRequestError.name:
+        response = new responses.BadRequestResponse({
+          message: err.message
+        });
+        break;
+      case errors.InternalServerError.name:
       default:
-        if (err.response.status === 401) {
-          response = new responses.UnauthorizedResponse(null, err.response.data.errors);
+        if (err.name === "AuthenticationError") {
+          response = new responses.UnauthorizedResponse({});
         } else {
-          response = new responses.InternalServerErrorResponse(null, err.response.data.errors);
+          response = new responses.InternalServerErrorResponse({});
         }
         break;
     }

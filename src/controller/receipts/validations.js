@@ -4,7 +4,10 @@ const { utilities } = require('@ylz/data-access')
 const validations = Object.freeze({
   id: {
     custom: {
-      options: (id) => utilities.isValidObjectId(id),
+      options: (id) => {
+        if(!isNaN(id)) {
+          return id >= 600}
+      },
       errorMessage: 'Wrong format!',
     },
   },
