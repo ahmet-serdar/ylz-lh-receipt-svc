@@ -32,6 +32,7 @@ class ReceiptsController {
       'receivedBy',
       'paymentType',
       'paymentReason',
+      'details'
     ];
     const isValidOperation = bodyKeys.every((key) => allowedKeys.includes(key));
 
@@ -188,6 +189,7 @@ class ReceiptsController {
       'receivedBy',
       'paymentType',
       'paymentReason',
+      'details'
     ];
     const isValidOperation = updates.every((update) =>
       allowedUpdates.includes(update)
