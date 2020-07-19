@@ -1,8 +1,10 @@
-const Receipt = require('../../repositories/receipt')
-const axios = require('axios')
+/** @format */
 
-const { debug } = require('@ylz/logger')
-const { responses } = require('@ylz/common')
+const Receipt = require('../../repositories/receipt');
+const axios = require('axios');
+
+const { debug } = require('@ylz/logger');
+const { responses } = require('@ylz/common');
 
 class ReceiptsController {
   static getInstance() {
@@ -13,49 +15,56 @@ class ReceiptsController {
     return ReceiptsController.instance;
   }
 
-  async create({ body, headers, locals }){
+  async create({ body, headers, locals }) {
     debug('ReceiptsController - create:', JSON.stringify(body));
 
-    const token = headers.authorization
-    const managerID = locals.managerID
-    const managerName = locals.managerName
+    const token = headers.authorization;
+    const managerID = locals.managerID;
+    const managerName = locals.managerName;
 
     const bodyKeys = Object.keys(body);
-    const allowedKeys = ["customerId", "amount", "amountInLetters", "date", "branch", "receivedBy", "paymentType", "paymentReason"];
-    const isValidOperation = bodyKeys.every(key =>
-    allowedKeys.includes(key)
-    );
+    const allowedKeys = [
+      'customerId',
+      'amount',
+      'amountInLetters',
+      'date',
+      'branch',
+      'receivedBy',
+      'paymentType',
+      'paymentReason',
+    ];
+    const isValidOperation = bodyKeys.every((key) => allowedKeys.includes(key));
 
     if (!isValidOperation) {
-      return new responses.BadRequestResponse(undefined,'Invalid keys!.');
+      return new responses.BadRequestResponse(undefined, 'Invalid keys!.');
     }
-    let customer
+    let customer;
 
-    try{
-      const url = process.env.CUSTOMER_SVC_URL
-  
-        customer = await axios.get(url + "/" + body.customerId, {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            Authorization: token
-          }
-        })
+    try {
+      const url = process.env.CUSTOMER_SVC_URL;
+
+      customer = await axios.get(url + '/' + body.customerId, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      });
     } catch (err) {
-      return new responses.NotFoundResponse(null, err.response.data.errors)
+      return new responses.NotFoundResponse(null, err.response.data.errors);
     }
-    
+
     const receiptBody = {
       customer: {
         id: body.customerId,
-        name: customer.data.data.firstName + ' ' + customer.data.data.lastName
+        name: customer.data.data.firstName + ' ' + customer.data.data.lastName,
       },
       amount: body.amount,
       amountInLetters: body.amountInLetters,
       date: body.date,
       branch: {
         id: body.branch,
-        name: body.branch
+        name: body.branch,
       },
       receivedBy: {
         id: body.receivedBy,
@@ -73,12 +82,12 @@ class ReceiptsController {
       createdBy: {
         id: managerID,
         name: managerName,
-      }
-    }
-    
-    const receipt = new Receipt(receiptBody)
-    
-    await receipt.save()
+      },
+    };
+
+    const receipt = new Receipt(receiptBody);
+
+    await receipt.save();
 
     return new responses.CreatedResponse(receipt);
   }
@@ -87,54 +96,70 @@ class ReceiptsController {
     debug('ReceiptsController - list:', JSON.stringify(query, null, 2));
 
     const { limit, skip, customerId } = query;
-    let data, count
+    let data, count;
 
-    if(customerId) {
-      data = await Receipt.find({}, null, { limit, skip, sort: {createdAt: -1}}).where('customer.id').in(customerId);
-      count =  await Receipt.find().where('customer.id').in(customerId);
+    if (customerId) {
+      data = await Receipt.find({}, null, {
+        limit,
+        skip,
+        sort: { createdAt: -1 },
+      })
+        .where('customer.id')
+        .in(customerId);
+      count = await Receipt.find().where('customer.id').in(customerId).count();
     } else {
-      data = await Receipt.find({}, null, { limit, skip, sort: {createdAt: -1}})
-      count = await Receipt.find({}, null, {})
+      data = await Receipt.find({}, null, {
+        limit,
+        skip,
+        sort: { createdAt: -1 },
+      });
+      count = await Receipt.count();
     }
 
-    return new responses.OkResponse({data, count:count.length});
+    return new responses.OkResponse({ data, count });
   }
 
   async search({ body, headers, query }) {
     debug('ReceiptsController - get:', JSON.stringify(body));
 
-    const {limit, skip, name, id} = query
-    const token = headers.authorization
+    const { limit, skip, name, id } = query;
+    const token = headers.authorization;
     const url = process.env.CUSTOMER_SVC_URL;
 
-    let data = []
-    let count
+    let data = [];
+    let count;
 
-    if(name) {
-      try{
-      const customers = await axios.get(url + `/search?name=${name}` , {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: token
-        }
-      })
-      const customerIDs = customers.data.data.map(customer => customer.id)
-      
-      data = await Receipt.find({}, null, { limit, skip, sort: {createdAt: -1}}).where('customer.id').in(customerIDs); 
-      const receipts = await Receipt.find().where('customer.id').in(customerIDs); 
-      count = receipts.length
-    } catch (err) {
-      return new responses.NotFoundResponse(null, err.response.data.errors)
-    }
-    }else if(id) {
-      const receipt = await Receipt.findById(id)
-      receipt ? data = receipt : []
-      count = receipt.length
-    }
-    return new responses.OkResponse({data, count})
-   }
+    if (name) {
+      try {
+        const customers = await axios.get(url + `/search?name=${name}`, {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        });
+        const customerIDs = customers.data.data.map((customer) => customer.id);
 
+        data = await Receipt.find({}, null, {
+          limit,
+          skip,
+          sort: { createdAt: -1 },
+        })
+          .where('customer.id')
+          .in(customerIDs);
+        count = await Receipt.find()
+          .where('customer.id')
+          .in(customerIDs)
+          .count();
+      } catch (err) {
+        return new responses.NotFoundResponse(null, err.response.data.errors);
+      }
+    } else if (id) {
+      data = await Receipt.findById(id);
+      data ? (count = 1) : [];
+    }
+    return new responses.OkResponse({ data, count });
+  }
 
   async get({ params }) {
     debug('ReceiptsController - get:', JSON.stringify(params));
@@ -147,24 +172,96 @@ class ReceiptsController {
       : new responses.NotFoundResponse('Receipt not exist!');
   }
 
-  async update(req, res){
-    debug("ReceiptsController - update:", JSON.stringify({ params, body }));
-    
-    const {params, body} = req
+  async update(req, res) {
+    const { params, body, headers } = req;
+    debug('ReceiptsController - update:', JSON.stringify({ params, body, headers }));
 
-    const _id = params.id
+    const _id = params.id;
+    const token = headers.authorization;
     const updates = Object.keys(body);
-    const allowedUpdates = ["customerId","amount", "amountInLetters", "date", "branch", "receivedBy", "paymentType", "paymentReason"];
-    const isValidOperation = updates.every(update =>
-    allowedUpdates.includes(update)
-  );
+    const allowedUpdates = [
+      'customerId',
+      'amount',
+      'amountInLetters',
+      'date',
+      'branch',
+      'receivedBy',
+      'paymentType',
+      'paymentReason',
+    ];
+    const isValidOperation = updates.every((update) =>
+      allowedUpdates.includes(update)
+    );
 
-  if (!isValidOperation) {
-    const notAllowedUpdates = updates.filter(update => !allowedUpdates.includes(update))
-    return new responses.BadRequestResponse(undefined, notAllowedUpdates, `Not allowed updates!`);
-  }
-  
-    const receipt = await Receipt.findByIdAndUpdate(_id, body, {new: true, runValidators: true})
+    if (!isValidOperation) {
+      const notAllowedUpdates = updates.filter(
+        (update) => !allowedUpdates.includes(update)
+      );
+      return new responses.BadRequestResponse(
+        undefined,
+        notAllowedUpdates,
+        `Not allowed updates!`
+      );
+    }
+
+    let customer;
+    let receiptBodyForUpdate = {};
+
+    if (body.amount) receiptBodyForUpdate.amount = body.amount;
+    if (body.amountInLetters)
+      receiptBodyForUpdate.amountInLetters = body.amountInLetters;
+    if (body.date) receiptBodyForUpdate.date = body.date;
+    if (body.branch) {
+      receiptBodyForUpdate.branch = {
+        id: body.branch,
+        name: body.branch,
+      };
+    }
+    if (body.receivedBy) {
+      receiptBodyForUpdate.receivedBy = {
+        id: body.receivedBy,
+        name: body.receivedBy,
+      };
+    }
+    if (body.paymentType) {
+      receiptBodyForUpdate.paymentType = {
+        id: body.paymentType,
+        name: body.paymentType,
+      };
+    }
+    if (body.paymentReason) {
+      receiptBodyForUpdate.paymentReason = {
+        id: body.paymentReason,
+        name: body.paymentReason,
+      };
+    }
+    if (body.details) receiptBodyForUpdate.details = body.details;
+
+    if (body.customerId) {
+      try {
+        const url = process.env.CUSTOMER_SVC_URL;
+
+        customer = await axios.get(url + '/' + body.customerId, {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        });
+
+        receiptBodyForUpdate.customer = {
+          id: body.customerId,
+          name: customer.data.data.firstName + ' ' + customer.data.data.lastName,
+        }
+      } catch (err) {
+        return new responses.NotFoundResponse(null, err.response.data.errors);
+      }
+    }
+
+    const receipt = await Receipt.findByIdAndUpdate(_id, receiptBodyForUpdate, {
+      new: true,
+      runValidators: true,
+    });
 
     return receipt
       ? new responses.OkResponse(receipt)
@@ -172,4 +269,4 @@ class ReceiptsController {
   }
 }
 
-module.exports = ReceiptsController.getInstance()
+module.exports = ReceiptsController.getInstance();
