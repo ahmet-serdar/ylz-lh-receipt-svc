@@ -138,7 +138,7 @@ class ReceiptsController {
             Authorization: token,
           },
         });
-        const customerIDs = customers.data.data.map((customer) => customer.id);
+        const customerIDs = customers.data.data.data.map((customer) => customer.id);
 
         data = await Receipt.find({}, null, {
           limit,
