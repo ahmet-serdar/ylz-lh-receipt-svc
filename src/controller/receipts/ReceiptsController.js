@@ -72,12 +72,12 @@ class ReceiptsController {
         name: body.receivedBy,
       },
       paymentType: {
-        id: body.paymentType,
-        name: body.paymentType,
+        id: body.paymentType.id,
+        name: body.paymentType.name
       },
       paymentReason: {
-        id: body.paymentReason,
-        name: body.paymentReason,
+        id: body.paymentReason.id,
+        name: body.paymentReason.name
       },
       details: body.details,
       createdBy: {
@@ -227,14 +227,14 @@ class ReceiptsController {
     }
     if (body.paymentType) {
       receiptBodyForUpdate.paymentType = {
-        id: body.paymentType,
-        name: body.paymentType,
+        id: body.paymentType.id,
+        name: body.paymentType.name,
       };
     }
     if (body.paymentReason) {
       receiptBodyForUpdate.paymentReason = {
-        id: body.paymentReason,
-        name: body.paymentReason,
+        id: body.paymentReason.id,
+        name: body.paymentReason.name,
       };
     }
     if (body.details) receiptBodyForUpdate.details = body.details;

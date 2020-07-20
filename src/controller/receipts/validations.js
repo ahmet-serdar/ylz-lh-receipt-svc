@@ -81,7 +81,7 @@ const validations = Object.freeze({
       custom: {
         options: (value) => {
           if(value) {
-            return value.length >= 1}
+            return value.id.length >= 1 && value.name.length >= 1}
         },
         errorMessage: `Payment type  is required!`
       }      
@@ -93,7 +93,7 @@ const validations = Object.freeze({
       custom: {
         options: (value) => {
           if(value) {
-            return value.length >= 1}
+            return value.id.length >= 1 && value.name.length >= 1}
         },
         errorMessage: `Payment reason is required!`
       }
@@ -146,8 +146,12 @@ const validator = Object.freeze({
 
   },
   update: {
+    id: validations.id,
     amount: validations.amount('body', false),
     amountInLetters: validations.amountInLetters('body', false),
+    receivedBy: validations.receivedBy('body'),
+    paymentType: validations.paymentType('body', false),
+    paymentReason: validations.paymentReason('body',false)
   }
 });
 
