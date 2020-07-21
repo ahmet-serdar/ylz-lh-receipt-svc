@@ -24,7 +24,7 @@ class ReceiptsController {
 
     const bodyKeys = Object.keys(body);
     const allowedKeys = [
-      'customerId',
+      'customer',
       'amount',
       'amountInLetters',
       'date',
@@ -44,7 +44,7 @@ class ReceiptsController {
     try {
       const url = process.env.CUSTOMER_SVC_URL;
 
-      customer = await axios.get(url + '/' + body.customerId.id, {
+      customer = await axios.get(url + '/' + body.customer.id, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ class ReceiptsController {
 
     const receiptBody = {
       customer: {
-        id: body.customerId.id,
+        id: body.customer.id,
         name: customer.data.data.firstName + ' ' + customer.data.data.lastName,
       },
       amount: body.amount,
@@ -181,7 +181,7 @@ class ReceiptsController {
     const token = headers.authorization;
     const updates = Object.keys(body);
     const allowedUpdates = [
-      'customerId',
+      'customer',
       'amount',
       'amountInLetters',
       'date',
@@ -239,11 +239,11 @@ class ReceiptsController {
     }
     if (body.details) receiptBodyForUpdate.details = body.details;
 
-    if (body.customerId) {
+    if (body.customer.id) {
       try {
         const url = process.env.CUSTOMER_SVC_URL;
 
-        customer = await axios.get(url + '/' + body.customerId, {
+        customer = await axios.get(url + '/' + body.customer.id, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -252,7 +252,7 @@ class ReceiptsController {
         });
 
         receiptBodyForUpdate.customer = {
-          id: body.customerId,
+          id: body.customer.id,
           name: customer.data.data.firstName + ' ' + customer.data.data.lastName,
         }
       } catch (err) {
