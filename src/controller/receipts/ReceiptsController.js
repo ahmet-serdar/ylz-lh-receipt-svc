@@ -44,7 +44,7 @@ class ReceiptsController {
     try {
       const url = process.env.CUSTOMER_SVC_URL;
 
-      customer = await axios.get(url + '/' + body.customerId, {
+      customer = await axios.get(url + '/' + body.customerId.id, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -57,19 +57,19 @@ class ReceiptsController {
 
     const receiptBody = {
       customer: {
-        id: body.customerId,
+        id: body.customerId.id,
         name: customer.data.data.firstName + ' ' + customer.data.data.lastName,
       },
       amount: body.amount,
       amountInLetters: body.amountInLetters,
       date: body.date,
       branch: {
-        id: body.branch,
-        name: body.branch,
+        id: body.branch.id,
+        name: body.branch.name,
       },
       receivedBy: {
-        id: body.receivedBy,
-        name: body.receivedBy,
+        id: body.receivedBy.id,
+        name: body.receivedBy.name,
       },
       paymentType: {
         id: body.paymentType.id,
@@ -215,14 +215,14 @@ class ReceiptsController {
     if (body.date) receiptBodyForUpdate.date = body.date;
     if (body.branch) {
       receiptBodyForUpdate.branch = {
-        id: body.branch,
-        name: body.branch,
+        id: body.branch.id,
+        name: body.branch.name,
       };
     }
     if (body.receivedBy) {
       receiptBodyForUpdate.receivedBy = {
-        id: body.receivedBy,
-        name: body.receivedBy,
+        id: body.receivedBy.id,
+        name: body.receivedBy.name,
       };
     }
     if (body.paymentType) {

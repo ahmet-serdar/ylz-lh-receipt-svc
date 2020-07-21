@@ -68,7 +68,7 @@ const validations = Object.freeze({
       custom: {
         options: (value) => {
           if(value) {
-            return value.length >= 1}
+            return value.id.length >= 1 && value.name.length >= 1}
         },
         errorMessage: `Received by  is required!`
       }   
@@ -96,6 +96,19 @@ const validations = Object.freeze({
             return value.id.length >= 1 && value.name.length >= 1}
         },
         errorMessage: `Payment reason is required!`
+      }
+      
+  }},
+  branch(locationType = constants.HttpRequestLocation.query, isRequired = true) {
+    return {
+      in: [locationType],
+      optional: !isRequired,
+      custom: {
+        options: (value) => {
+          if(value) {
+            return value.id.length >= 1 && value.name.length >= 1}
+        },
+        errorMessage: `Branch reason is required!`
       }
       
   }},
@@ -142,7 +155,8 @@ const validator = Object.freeze({
     amountInLetters: validations.amountInLetters('body'),
     receivedBy: validations.receivedBy('body'),
     paymentType: validations.paymentType('body'),
-    paymentReason: validations.paymentReason('body')
+    paymentReason: validations.paymentReason('body'),
+    branch: validations.paymentReason('body')
 
   },
   update: {
@@ -151,7 +165,8 @@ const validator = Object.freeze({
     amountInLetters: validations.amountInLetters('body', false),
     receivedBy: validations.receivedBy('body'),
     paymentType: validations.paymentType('body', false),
-    paymentReason: validations.paymentReason('body',false)
+    paymentReason: validations.paymentReason('body',false),
+    branch: validations.paymentReason('body',false)
   }
 });
 
