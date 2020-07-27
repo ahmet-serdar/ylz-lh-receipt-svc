@@ -28,17 +28,32 @@ const router = new express.Router()
  *         required: true
  *       - name: receipt 
  *         in: body
- *         description: Create a new receipt
+ *         description: Create a new receipt. Valid updates are  "customer", "amount", "amountInLetters", "branch", "receivedBy", "paymentType", "paymentReason", "date", "details"
  *         required: true
  *         example: {   
- *                  "customerId": "string",                 
+ *                  "customer": {
+ *                    name: 'customer name',
+ *                    id: 'customer id from customer service'
+ *                  },                 
  *                	"amount": number,
  *                  "amountInLetters":"string",
  *                  "date": "date",
- *                 	"branch": "string",
- *                	"receivedBy": "string",
- *                	"paymentType": "string",
- *                 	"paymentReason": "string"
+ *                 	"branch": {
+ *                            name: 'branch name from ref-data service',
+ *                            id:'id from ref-data service'         
+ *                    },
+ *                	"receivedBy": {
+ *                            name: 'Manager name from iam service',
+ *                            id:'id from iam service'         
+ *                    },
+ *                	"paymentType": {
+ *                            name: 'Payment type from ref-data service',
+ *                            id:'id from ref-data service'         
+ *                    },
+ *                 	"paymentReason": {
+ *                            name: 'Payment reason from ref-data service',
+ *                            id:'id from ref-data service'         
+ *                    }
  *                  }
  *         
  *     responses:
@@ -114,6 +129,52 @@ router.post("/", auth, checkSchema(validations.create), schemaErrorHandler(), co
  */
 //#endregion
 router.get('/', auth, checkSchema(validations.list), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'list'))
+
+
+//#region [swagger: /customers - GET]
+/**
+ * @swagger
+ * /receipts/search:
+ *   get:
+ *     tags:
+ *       - receipt
+ *     summary: Search receipts by customer name or by id 
+ *     description: Returns search result
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: authorization
+ *         description: Bearer Authentication Token (It will be written as "Bearer + space + idToken" )
+ *         in: header
+ *         type: string
+ *         required: true
+ *       - in: query
+ *         name: skip
+ *         type: integer
+ *         description: The number of pages to skip before starting to collect the result set.
+ *       - in: query
+ *         name: limit
+ *         type: integer
+ *         description: The numbers of receipts to return.
+ *       - in: query
+ *         name: name
+ *         type: string
+ *         description: Some letters for searc customers by first name and last name.
+ *       - in: query
+ *         name: id
+ *         type: string
+ *         description: Receipt id.
+ *     responses:
+ *       200:
+ *         description: An array of receipts and number of receipts for search result
+ *       401:
+ *         description: Unauthorized Error
+ *         schema: 
+ *           type: string
+ *           example: "Authentication failed! Try again."    
+ *            
+ */
+//#endregion
 router.get('/search', auth, checkSchema(validations.list), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'search'))
 
 //#region [swagger: /receipts/{id} - GET]
@@ -184,17 +245,34 @@ router.get('/:id', auth, checkSchema(validations.get), schemaErrorHandler(),cont
  *         required: true
  *      
  *       - name: update body
- *         description: Valid updates are  "amount", "amountInLetters", "branch", "receivedBy", "paymentType", "paymentReason"
+ *         description: Valid updates are  "customer", "amount", "amountInLetters", "branch", "receivedBy", "paymentType", "paymentReason", "date", "details"
  *         in: body
  *         type: object
  *         required: true
- *         example: {                    
+ *         example: {   
+ *                  "customer": {
+ *                    name: 'customer name',
+ *                    id: 'customer id from customer service'
+ *                  },                 
  *                	"amount": number,
  *                  "amountInLetters":"string",
- *                 	"branch": "string",
- *                	"receivedBy": "string",
- *                	"paymentType": "string",
- *                 	"paymentReason": "string"
+ *                  "date": "date",
+ *                 	"branch": {
+ *                            name: 'branch name from ref-data service',
+ *                            id:'id from ref-data service'         
+ *                    },
+ *                	"receivedBy": {
+ *                            name: 'Manager name from iam service',
+ *                            id:'id from iam service'         
+ *                    },
+ *                	"paymentType": {
+ *                            name: 'Payment type from ref-data service',
+ *                            id:'id from ref-data service'         
+ *                    },
+ *                 	"paymentReason": {
+ *                            name: 'Payment reason from ref-data service',
+ *                            id:'id from ref-data service'         
+ *                    }
  *                  }
  *     responses:
  *       200:
