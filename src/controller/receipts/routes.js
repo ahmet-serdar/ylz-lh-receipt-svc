@@ -131,7 +131,7 @@ router.post("/", auth, checkSchema(validations.create), schemaErrorHandler(), co
 router.get('/', auth, checkSchema(validations.list), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'list'))
 
 
-//#region [swagger: /customers - GET]
+//#region [swagger: /receipt - GET]
 /**
  * @swagger
  * /receipts/search:
@@ -176,6 +176,46 @@ router.get('/', auth, checkSchema(validations.list), schemaErrorHandler(), contr
  */
 //#endregion
 router.get('/search', auth, checkSchema(validations.list), schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'search'))
+
+//#region [swagger: /receipts/dashboard - GET]
+/**
+ * @swagger
+ * /receipts/dashboard?ref=branch:
+ *   get:
+ *     tags:
+ *       - receipt
+ *     summary: Get receipt numbers by reference
+ *     description: Returns receipt numbers by reference
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: authorization
+ *         description: Bearer Authentication Token (It will be written as "Bearer + space + idToken" )
+ *         in: header
+ *         type: string
+ *         required: true
+ *       - in: query
+ *         name: ref
+ *         type: string
+ *         description: Reference name
+ *         
+ *     responses:
+ *       200:
+ *         description: Succesfull response
+ *       401:
+ *         description: Unauthorized Error
+ *         schema: 
+ *           type: string
+ *           example: "Authentication failed! Try again."         
+ *       404:
+ *         description: Not Found
+ *         
+ *       400:
+ *         description: Bad Request
+ *         
+ */
+//#endregion
+router.get('/dashboard', auth, schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'dashboard'))
 
 //#region [swagger: /receipts/{id} - GET]
 /**

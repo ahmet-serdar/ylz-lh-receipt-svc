@@ -173,6 +173,23 @@ class ReceiptsController {
       : new responses.NotFoundResponse('Receipt not exist!');
   }
 
+  async dashboard({ query }) {
+    debug('ReceiptsController - get:', JSON.stringify(query));
+    const { ref } = query
+    console.log(ref, 'ref')
+    const aggregatorOpts = [
+      {
+          $group: {
+              _id: {name: `$${ref}.name`},
+              count: { $sum: 1 },
+          }
+      }
+    ]
+      const data = await Receipt.aggregate(aggregatorOpts).exec()
+
+      return new responses.OkResponse(data)
+  }
+
   async update(req, res) {
     const { params, body, headers } = req;
     debug('ReceiptsController - update:', JSON.stringify({ params, body, headers }));
