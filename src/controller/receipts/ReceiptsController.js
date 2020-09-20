@@ -176,7 +176,7 @@ class ReceiptsController {
   async dashboard({ query }) {
     debug('ReceiptsController - get:', JSON.stringify(query));
     const { ref } = query
-    console.log(ref, 'ref')
+    
     const aggregatorOpts = [
       {
           $group: {
