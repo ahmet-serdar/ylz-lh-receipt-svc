@@ -176,16 +176,45 @@ class ReceiptsController {
   async dashboard({ query }) {
     debug('ReceiptsController - get:', JSON.stringify(query));
     const { ref } = query
-    
-    const aggregatorOpts = [
-      {
+    let data = []
+
+    if(ref === 'date') {
+      const today = new Date(),
+      oneDay = ( 1000 * 60 * 60 * 24 ),
+      thirtyDays = new Date( today.valueOf() - ( 30 * oneDay ) ),
+      fifteenDays = new Date( today.valueOf() - ( 15 * oneDay ) ),
+      sevenDays = new Date( today.valueOf() - ( 7 * oneDay ) );
+  
+      data = await Receipt.aggregate([
+        {
+          '$match': {
+        date : {
+          '$gte' : thirtyDays,
+          '$lt' : new Date()
+      }}},
+        {
           $group: {
-              _id: {name: `$${ref}.name`},
-              count: { $sum: 1 },
+            _id: {
+              month: { $month: "$date" },
+              day: { $dayOfMonth: "$date" },
+              year: { $year: "$date" }
+            },
+            totalPrice: { $sum:"$amount" } ,
+            count: { $sum: 1 }
           }
-      }
-    ]
-      const data = await Receipt.aggregate(aggregatorOpts).exec()
+        }
+      ]);
+    } else {
+      const aggregatorOpts = [
+        {
+            $group: {
+                _id: {name: `$${ref}.name`},
+                count: { $sum: 1 },
+            }
+        }
+      ]
+        data = await Receipt.aggregate(aggregatorOpts).exec()
+    }
 
       return new responses.OkResponse(data)
   }
