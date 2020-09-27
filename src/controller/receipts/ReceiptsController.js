@@ -199,8 +199,10 @@ class ReceiptsController {
         {
           $group: {
             _id: {
-              date: "$date"
+              month: {"$month": "$date"},
+              day: {"$dayOfMonth" : "$date"}
             },
+            date: {'$addToSet': "$date"},
             totalPrice: { $sum:"$amount" } ,
             count: { $sum: 1 }
           }
