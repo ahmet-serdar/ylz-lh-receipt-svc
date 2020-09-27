@@ -93,28 +93,32 @@ class ReceiptsController {
     return new responses.CreatedResponse(receipt);
   }
 
-  async list({ query }) {
-    debug('ReceiptsController - list:', JSON.stringify(query, null, 2));
+  async list({ query, locals }) {
+    debug('ReceiptsController - list:', JSON.stringify(query, locals, null, 2));
 
     const { limit, skip, customerId } = query;
+    const { curBranch } = locals
     let data, count;
-
+    if(!curBranch) {
+      return new responses.BadRequestResponse(null, 'Manager must has a branch!')
+    }
+    
     if (customerId) {
-      data = await Receipt.find({}, null, {
+      data = await Receipt.find({'branch.name': curBranch}, null, {
         limit,
         skip,
         sort: { createdAt: -1 },
       })
         .where('customer.id')
         .in(customerId);
-      count = await Receipt.find().where('customer.id').in(customerId).count();
+      count = await Receipt.find({'branch.name': curBranch}).where('customer.id').in(customerId).count();
     } else {
-      data = await Receipt.find({}, null, {
+      data = await Receipt.find({'branch.name': curBranch}, null, {
         limit,
         skip,
         sort: { createdAt: -1 },
       });
-      count = await Receipt.count();
+      count = await Receipt.find({'branch.name': curBranch}).count();
     }
 
     return new responses.OkResponse({ data, count });
