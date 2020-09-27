@@ -215,7 +215,7 @@ router.get('/search', auth, checkSchema(validations.list), schemaErrorHandler(),
  *         
  */
 //#endregion
-router.get('/dashboard', auth, schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'dashboard'))
+router.get('/dashboard', schemaErrorHandler(), controllerAdapter(receiptControllerInstance, 'dashboard'))
 
 //#region [swagger: /receipts/{id} - GET]
 /**

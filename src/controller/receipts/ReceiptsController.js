@@ -206,7 +206,8 @@ class ReceiptsController {
             totalPrice: { $sum:"$amount" } ,
             count: { $sum: 1 }
           }
-        }
+        },
+        { $sort: { '_id.day': 1 } },
       ]);
     } else {
       const aggregatorOpts = [
