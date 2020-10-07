@@ -197,7 +197,7 @@ router.get('/search', auth, checkSchema(validations.list), schemaErrorHandler(),
  *       - in: query
  *         name: ref
  *         type: string
- *         description: Reference name
+ *         description: Reference name(branch, paymentType, paymentReason and data)
  *         
  *     responses:
  *       200:

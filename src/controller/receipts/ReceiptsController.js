@@ -185,9 +185,7 @@ class ReceiptsController {
     if(ref === 'date') {
       const today = new Date(),
       oneDay = ( 1000 * 60 * 60 * 24 ),
-      thirtyDays = new Date( today.valueOf() - ( 30 * oneDay ) ),
-      fifteenDays = new Date( today.valueOf() - ( 15 * oneDay ) ),
-      sevenDays = new Date( today.valueOf() - ( 7 * oneDay ) );
+      thirtyDays = new Date( today.valueOf() - ( 30 * oneDay ) )
   
       data = await Receipt.aggregate([
         {
