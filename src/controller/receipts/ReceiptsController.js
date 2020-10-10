@@ -215,7 +215,7 @@ class ReceiptsController {
               count: { $sum: 1 }
             }
           },
-          { $sort: { '_id.day': 1 } },
+          {  $sort: { '_id.month': 1, '_id.day': 1 } },
         ]);
       }else {
         data = await Receipt.aggregate([
@@ -237,7 +237,7 @@ class ReceiptsController {
               count: { $sum: 1 }
             }
           },
-          { $sort: { '_id': 1 } },
+          { $sort: { '_id.month': 1, '_id.day': 1 } },
         ]);
       }
      
