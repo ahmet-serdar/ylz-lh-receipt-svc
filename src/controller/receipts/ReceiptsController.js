@@ -96,7 +96,7 @@ class ReceiptsController {
   async list({ query, locals }) {
     debug('ReceiptsController - list:', JSON.stringify(query, locals, null, 2));
 
-    const { limit, skip, customerId } = query;
+    const { limit, skip, customerId, sort= 'createdAt', sdir = 'desc' } = query;
     const { curBranch } = locals
     let data, count;
     if(!curBranch) {
@@ -107,7 +107,7 @@ class ReceiptsController {
       data = await Receipt.find({'branch.name': curBranch}, null, {
         limit,
         skip,
-        sort: { createdAt: -1 },
+        sort: { sort: sdir },
       })
         .where('customer.id')
         .in(customerId);
@@ -116,7 +116,7 @@ class ReceiptsController {
       data = await Receipt.find({'branch.name': curBranch}, null, {
         limit,
         skip,
-        sort: { createdAt: -1 },
+        sort: { [sort]: sdir },
       });
       count = await Receipt.find({'branch.name': curBranch}).count();
     }

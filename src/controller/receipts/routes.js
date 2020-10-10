@@ -117,6 +117,14 @@ router.post("/", auth, checkSchema(validations.create), schemaErrorHandler(), co
  *         name: customerId
  *         type: string
  *         description: Only returns receipts with customerId that comes with query.
+ *       - in: query
+ *         name: sort
+ *         type: string
+ *         description: Sort receipts.
+ *       - in: query
+ *         name: sdir
+ *         type: string
+ *         description: Sort direction(asc or desc).
  *     responses:
  *       200:
  *         description: An array of receipts and number of all receipts in the database
