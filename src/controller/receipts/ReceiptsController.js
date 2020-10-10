@@ -96,7 +96,7 @@ class ReceiptsController {
   async list({ query, locals }) {
     debug('ReceiptsController - list:', JSON.stringify(query, locals, null, 2));
 
-    const { limit, skip, customerId, sort= 'createdAt', sdir = 'desc' } = query;
+    const { limit = 20, skip, customerId, sort= 'createdAt', sdir = 'desc' } = query;
     const { curBranch } = locals
     let data, count;
     
