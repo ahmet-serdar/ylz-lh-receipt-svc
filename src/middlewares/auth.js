@@ -6,10 +6,7 @@ const { oktaIssuer, oktaClientId } = require('../config')
 
 const verifier = new OktaJwtVerifier({
   issuer: oktaIssuer,
-  clientId: oktaClientId,
-  assertClaims: {
-    'groups.includes': ['Admin' || 'Manager']
-  }
+  clientId: oktaClientId
 });
 
 const auth = async (req, res, next) => {
