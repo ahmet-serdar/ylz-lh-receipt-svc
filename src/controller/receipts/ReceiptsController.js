@@ -237,7 +237,7 @@ class ReceiptsController {
               count: { $sum: 1 }
             }
           },
-          { $sort: { '_id.day': 1 } },
+          { $sort: { '_id': 1 } },
         ]);
       }
      
