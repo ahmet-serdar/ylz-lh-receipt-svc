@@ -99,9 +99,6 @@ class ReceiptsController {
     const { limit, skip, customerId, sort= 'createdAt', sdir = 'desc' } = query;
     const { curBranch } = locals
     let data, count;
-    if(!curBranch) {
-      return new responses.BadRequestResponse(null, 'Manager must has a branch!')
-    }
     
     if (customerId) {
       data = await Receipt.find({'branch.name': curBranch}, null, {
@@ -112,13 +109,20 @@ class ReceiptsController {
         .where('customer.id')
         .in(customerId);
       count = await Receipt.find({'branch.name': curBranch}).where('customer.id').in(customerId).count();
-    } else {
+    } else if(curBranch) {
       data = await Receipt.find({'branch.name': curBranch}, null, {
         limit,
         skip,
         sort: { [sort]: sdir },
       });
       count = await Receipt.find({'branch.name': curBranch}).count();
+    } else {
+      data = await Receipt.find(undefined , null, {
+        limit,
+        skip,
+        sort: { [sort]: sdir },
+      });
+      count = await Receipt.find().count();
     }
 
     return new responses.OkResponse({ data, count });
