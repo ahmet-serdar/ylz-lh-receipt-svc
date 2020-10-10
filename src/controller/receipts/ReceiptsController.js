@@ -181,36 +181,66 @@ class ReceiptsController {
       : new responses.NotFoundResponse('Receipt not exist!');
   }
 
-  async dashboard({ query }) {
-    debug('ReceiptsController - get:', JSON.stringify(query));
+  async dashboard({ query, locals }) {
+    debug('ReceiptsController - get:', JSON.stringify(query, locals));
     const { ref } = query
     let data = []
+    const { curBranch } = locals
 
     if(ref === 'date') {
       const today = new Date(),
       oneDay = ( 1000 * 60 * 60 * 24 ),
       thirtyDays = new Date( today.valueOf() - ( 30 * oneDay ) )
-  
-      data = await Receipt.aggregate([
-        {
-          '$match': {
-        date : {
-          '$gte' : thirtyDays,
-          '$lt' : new Date()
-      }}},
-        {
-          $group: {
-            _id: {
-              month: {"$month": "$date"},
-              day: {"$dayOfMonth" : "$date"}
-            },
-            date: {'$addToSet': "$date"},
-            totalPrice: { $sum:"$amount" } ,
-            count: { $sum: 1 }
-          }
-        },
-        { $sort: { '_id.day': 1 } },
-      ]);
+
+      if(curBranch) {
+        data = await Receipt.aggregate([
+          {
+            '$match': {
+              '$and': [
+                {date : {
+                  '$gte' : thirtyDays,
+                  '$lt' : new Date()
+              }}, 
+              {'branch.name': curBranch}
+              ]
+          }},
+          {
+            $group: {
+              _id: {
+                month: {"$month": "$date"},
+                day: {"$dayOfMonth" : "$date"}
+              },
+              date: {'$addToSet': "$date"},
+              totalPrice: { $sum:"$amount" } ,
+              count: { $sum: 1 }
+            }
+          },
+          { $sort: { '_id.day': 1 } },
+        ]);
+      }else {
+        data = await Receipt.aggregate([
+          {
+            '$match': {
+                date : {
+                  '$gte' : thirtyDays,
+                  '$lt' : new Date()
+              }
+          }},
+          {
+            $group: {
+              _id: {
+                month: {"$month": "$date"},
+                day: {"$dayOfMonth" : "$date"}
+              },
+              date: {'$addToSet': "$date"},
+              totalPrice: { $sum:"$amount" } ,
+              count: { $sum: 1 }
+            }
+          },
+          { $sort: { '_id.day': 1 } },
+        ]);
+      }
+     
     } else {
       const aggregatorOpts = [
         {
