@@ -98,7 +98,7 @@ class ReceiptsController {
 
     const { limit = 20, skip, customerId, sdir = 'desc' } = query;
     let { sort = 'createdAt' } = query
-    const { curBranch } = locals
+    const { curBranch, groups } = locals
     let data, count;
     if(sort === 'id') sort = '_id'
     if (customerId) {
@@ -110,7 +110,7 @@ class ReceiptsController {
         .where('customer.id')
         .in(customerId);
       count = await Receipt.find({'branch.name': curBranch}).where('customer.id').in(customerId).count();
-    } else if(curBranch) {
+    } else if(!groups.includes('Admin')) {
       data = await Receipt.find({'branch.name': curBranch}, null, {
         limit,
         skip,
@@ -186,14 +186,14 @@ class ReceiptsController {
     debug('ReceiptsController - get:', JSON.stringify(query, locals));
     const { ref } = query
     let data = []
-    const { curBranch } = locals
+    const { curBranch, groups } = locals
 
     if(ref === 'date') {
       const today = new Date(),
       oneDay = ( 1000 * 60 * 60 * 24 ),
       thirtyDays = new Date( today.valueOf() - ( 30 * oneDay ) )
 
-      if(curBranch) {
+      if(!groups.includes('Admin')) {
         data = await Receipt.aggregate([
           {
             '$match': {

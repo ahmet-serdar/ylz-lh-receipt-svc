@@ -20,6 +20,7 @@ const auth = async (req, res, next) => {
       res.locals.managerID = ret.claims.sub
       res.locals.managerName = ret.claims.name
       res.locals.curBranch = ret.claims.branch
+      res.locals.groups = ret.claims.groups
       next();
     } catch (error) {
         return res.status(401).json(error.message);
