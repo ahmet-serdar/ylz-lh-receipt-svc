@@ -16,7 +16,7 @@
     "@ylz/connector": "git+https://github.com/aytekinyaliz/ylz-connector.git",
     "@ylz/data-access": "git+https://github.com/aytekinyaliz/ylz-data-access.git",
     "@ylz/logger": "git+https://github.com/aytekinyaliz/ylz-logger.git",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "compression": "1.7.3",
     "cookie-parser": "^1.4.5",
